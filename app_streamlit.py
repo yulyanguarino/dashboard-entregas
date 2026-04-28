@@ -35,10 +35,13 @@ url = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/p
 geojson = json.loads(urllib.request.urlopen(url).read())
 
 # =========================
-# FILTROS
+# TITLE
 # =========================
 st.title("📦 Dashboard de Entregas")
 
+# =========================
+# FILTROS
+# =========================
 col1, col2 = st.columns(2)
 
 with col1:
@@ -68,9 +71,29 @@ if transportadora != "Todas":
     dff = dff[dff["TRANSPORTADORA"] == transportadora]
 
 # =========================
+# KPIs
+# =========================
+total_entregas = len(dff)
+media_tme = round(dff["TME"].mean(), 2) if len(dff) > 0 else 0
+estados_ativos = dff[col_uf].nunique()
+
+k1, k2, k3 = st.columns(3)
+
+k1.metric("📦 Total Entregas", total_entregas)
+k2.metric("⏱ Média TME", media_tme)
+k3.metric("📍 Estados Ativos", estados_ativos)
+
+st.markdown("---")
+
+# =========================
 # MAPA
 # =========================
 media = dff.groupby(col_uf)["TME"].mean().reset_index()
+
+uf_selecionado = st.selectbox(
+    "Selecione o estado (opcional)",
+    ["Todos"] + sorted(dff[col_uf].unique())
+)
 
 fig = px.choropleth(
     media,
@@ -78,38 +101,33 @@ fig = px.choropleth(
     locations=col_uf,
     featureidkey="properties.sigla",
     color="TME",
-    color_continuous_scale="Blues",  # 🔥 melhor visual
+    color_continuous_scale="Blues",
     hover_name=col_uf
 )
 
 fig.update_traces(
+    marker_line_color="white",
+    marker_line_width=0.8,
     hovertemplate="<b>%{location}</b><br>TME: %{z:.2f}"
 )
 
-fig.update_geos(fitbounds="locations", visible=False)
-
 fig.update_layout(
-    coloraxis_colorbar=dict(
-        title="TME",
-        thickness=10
-    ),
     margin=dict(l=0, r=0, t=30, b=0),
-    paper_bgcolor="white"
+    paper_bgcolor="white",
+    coloraxis_colorbar=dict(title="TME")
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
 # =========================
-# DETALHES
+# FILTRO POR ESTADO
 # =========================
-st.subheader("📊 Detalhes")
-
-uf_selecionado = st.selectbox(
-    "Selecione o estado",
-    ["Todos"] + sorted(dff[col_uf].unique())
-)
-
 if uf_selecionado != "Todos":
     dff = dff[dff[col_uf] == uf_selecionado]
+
+# =========================
+# TABELA
+# =========================
+st.subheader("📊 Detalhes")
 
 st.dataframe(dff, use_container_width=True)
