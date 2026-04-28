@@ -54,13 +54,15 @@ with col2:
     )
 
 # =========================
-# FILTRAR DADOS
+# FILTRAGEM
 # =========================
 dff = df.copy()
 
 if len(data_range) == 2:
-    dff = dff[(dff["DATAEMISSAO"] >= pd.to_datetime(data_range[0])) &
-              (dff["DATAEMISSAO"] <= pd.to_datetime(data_range[1]))]
+    dff = dff[
+        (dff["DATAEMISSAO"] >= pd.to_datetime(data_range[0])) &
+        (dff["DATAEMISSAO"] <= pd.to_datetime(data_range[1]))
+    ]
 
 if transportadora != "Todas":
     dff = dff[dff["TRANSPORTADORA"] == transportadora]
@@ -76,10 +78,20 @@ fig = px.choropleth(
     locations=col_uf,
     featureidkey="properties.sigla",
     color="TME",
-    color_continuous_scale="Blues"
+    color_continuous_scale="Viridis",  # 🔥 melhor visual
+    hover_name=col_uf
+)
+
+fig.update_traces(
+    hovertemplate="<b>%{location}</b><br>TME: %{z:.2f}"
 )
 
 fig.update_geos(fitbounds="locations", visible=False)
+
+fig.update_layout(
+    margin=dict(l=0, r=0, t=30, b=0),
+    paper_bgcolor="white"
+)
 
 st.plotly_chart(fig, use_container_width=True)
 
