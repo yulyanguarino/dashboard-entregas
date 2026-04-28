@@ -35,7 +35,7 @@ url = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/p
 geojson = json.loads(urllib.request.urlopen(url).read())
 
 # =========================
-# TITLE
+# HEADER
 # =========================
 st.title("📦 Dashboard de Entregas")
 
@@ -57,7 +57,7 @@ with col2:
     )
 
 # =========================
-# FILTRAGEM
+# FILTRO BASE
 # =========================
 dff = df.copy()
 
@@ -86,14 +86,9 @@ k3.metric("📍 Estados Ativos", estados_ativos)
 st.markdown("---")
 
 # =========================
-# MAPA
+# MAPA BRASIL
 # =========================
 media = dff.groupby(col_uf)["TME"].mean().reset_index()
-
-uf_selecionado = st.selectbox(
-    "Selecione o estado (opcional)",
-    ["Todos"] + sorted(dff[col_uf].unique())
-)
 
 fig = px.choropleth(
     media,
@@ -102,6 +97,7 @@ fig = px.choropleth(
     featureidkey="properties.sigla",
     color="TME",
     color_continuous_scale="Blues",
+    scope="south america",
     hover_name=col_uf
 )
 
@@ -112,6 +108,10 @@ fig.update_traces(
 )
 
 fig.update_layout(
+    geo=dict(
+        fitbounds="locations",
+        visible=False
+    ),
     margin=dict(l=0, r=0, t=30, b=0),
     paper_bgcolor="white",
     coloraxis_colorbar=dict(title="TME")
@@ -120,14 +120,19 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # =========================
-# FILTRO POR ESTADO
+# SELEÇÃO DE ESTADO
 # =========================
+uf_selecionado = st.selectbox(
+    "Selecione o estado (opcional)",
+    ["Todos"] + sorted(dff[col_uf].unique())
+)
+
 if uf_selecionado != "Todos":
     dff = dff[dff[col_uf] == uf_selecionado]
 
 # =========================
 # TABELA
 # =========================
-st.subheader("📊 Detalhes")
+st.subheader("📊 Detalhes das Entregas")
 
 st.dataframe(dff, use_container_width=True)
