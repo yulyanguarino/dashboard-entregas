@@ -78,7 +78,7 @@ fig = px.choropleth(
     locations=col_uf,
     featureidkey="properties.sigla",
     color="TME",
-    color_continuous_scale="Viridis",  # 🔥 melhor visual
+    color_continuous_scale="Blues",  # 🔥 melhor visual
     hover_name=col_uf
 )
 
@@ -89,6 +89,10 @@ fig.update_traces(
 fig.update_geos(fitbounds="locations", visible=False)
 
 fig.update_layout(
+    coloraxis_colorbar=dict(
+        title="TME",
+        thickness=10
+    ),
     margin=dict(l=0, r=0, t=30, b=0),
     paper_bgcolor="white"
 )
