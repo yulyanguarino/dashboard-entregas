@@ -97,23 +97,28 @@ fig = px.choropleth(
     featureidkey="properties.sigla",
     color="TME",
     color_continuous_scale="Blues",
-    scope="south america",
     hover_name=col_uf
 )
 
+# 🔥 MELHORIA VISUAL IMPORTANTE
+fig.update_geos(
+    scope="south america",
+    fitbounds="locations",
+    visible=False,
+    showcountries=True,
+    countrycolor="lightgray"
+)
+
 fig.update_traces(
-    marker_line_color="white",
-    marker_line_width=0.8,
-    hovertemplate="<b>%{location}</b><br>TME: %{z:.2f}"
+    marker_line_color="black",   # borda dos estados
+    marker_line_width=0.7,
+    hovertemplate="<b>Estado: %{location}</b><br>TME: %{z:.2f}"
 )
 
 fig.update_layout(
-    geo=dict(
-        fitbounds="locations",
-        visible=False
-    ),
     margin=dict(l=0, r=0, t=30, b=0),
     paper_bgcolor="white",
+    plot_bgcolor="white",
     coloraxis_colorbar=dict(title="TME")
 )
 
